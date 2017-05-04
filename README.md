@@ -16,6 +16,8 @@ in the state vector. Lidar is less useful in normal version, but it works.
 
 We omit the Lidar for now and only reproduce the walking pattern on an even terrain.
 
+Example of a generic agent running the cross-entropy method: https://github.com/openai/gym/blob/master/examples/agents/cem.py
+
 Real-world implementation
 -------------------------
 
