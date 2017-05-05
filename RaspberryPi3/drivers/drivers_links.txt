@@ -1,0 +1,76 @@
+Online Ressources and additionnal comments:
+
+Raspberry Pi 3B GPIOs
+---------------------
+https://i.stack.imgur.com/sVvsB.jpg
+
+Raspberry Pi & ROS
+------------------
+http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Indigo%20on%20Raspberry%20Pi
+http://www.instructables.com/id/Raspberry-Pi-and-ROS-Robotic-Operating-System/
+
+MPU6050 - IMU
+-------------
+https://github.com/matpalm/ros-mpu6050-node/blob/master/src/mpu6050_node.cpp
+http://blog.bitify.co.uk/2013/11/reading-data-from-mpu-6050-on-raspberry.html
+https://www.sunfounder.com/learn/sensor-kit-v2-0-for-raspberry-pi-b-plus/lesson-32-mpu6050-gyro-acceleration-sensor-sensor-kit-v2-0-for-b-plus.html
+http://blog.bitify.co.uk/2013/11/interfacing-raspberry-pi-and-mpu-6050.html
+
+
+Serovomotors control
+--------------------
+Note: we don't use the extension board and I2C board to control Servos.
+http://razzpisampler.oreilly.com/ch05.html
+
+
+
+
+OpenAi Gym bipedal_walker.py
+----------------------------
+https://github.com/openai/gym/blob/master/gym/envs/box2d/bipedal_walker.py
+
+
+
+
+General main code running on Rasp. Pi (before agent integration)
+----------------------------------------------------------------
+
+includes ...
+(include time and check if it's good despite interruptions)
+...
+
+
+initialize subscribers (IMU)/ publishers (none)
+note: servo control directly in Main
+
+---
+main loop (using ROS?)
+{
+
+-> read current hull angle (IMU)
+-> update state vector using time and imu data (kalman filter would be nice, but wont appear)
+-> update current servos angles using time, latest angles and some interpolation
+
+
+(compute next logical step using intelligent agent)
+
+-> apply torques (angles) on servomotors
+-> update desired state
+
+
+} (loop back)
+
+-----
+
+State variables
+---------------
+(omega)  hull angle speed, (angular velocity)
+(vx, vy) horizontal speed, vertical speed
+position of joints [4]
+(joints angular speed [4])
+
+for legs contact with ground:
+	position of hull (in world frame)
+	-> infer if the feet touch the ground from
+		(x,y) pos of hull
+		position of joints
