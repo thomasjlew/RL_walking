@@ -15,6 +15,8 @@ https://github.com/matpalm/ros-mpu6050-node/blob/master/src/mpu6050_node.cpp
 http://blog.bitify.co.uk/2013/11/reading-data-from-mpu-6050-on-raspberry.html
 https://www.sunfounder.com/learn/sensor-kit-v2-0-for-raspberry-pi-b-plus/lesson-32-mpu6050-gyro-acceleration-sensor-sensor-kit-v2-0-for-b-plus.html
 http://blog.bitify.co.uk/2013/11/interfacing-raspberry-pi-and-mpu-6050.html
+for i2c communication and simple commands:
+https://github.com/WiringPi/WiringPi-Python
 
 
 Serovomotors control
