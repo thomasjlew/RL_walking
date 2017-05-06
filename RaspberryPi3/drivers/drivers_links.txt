@@ -1,5 +1,9 @@
 Online Ressources and additionnal comments:
 
+MECH design
+-----------
+upper leg length: 60mm
+
 Raspberry Pi 3B GPIOs
 ---------------------
 https://i.stack.imgur.com/sVvsB.jpg
