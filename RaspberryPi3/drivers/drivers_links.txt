@@ -8,6 +8,7 @@ Arduino Pro mini
 ----------------
 arduino ide board selection: Arduino Duemilanove, ATmega328
 starting code for IMU data extraction: http://playground.arduino.cc/Main/MPU-6050#short
+how to interpret read data from IMU: https://electronics.stackexchange.com/questions/39714/how-to-read-a-gyro-accelerometer
 
 Raspberry Pi & ROS
 ------------------
