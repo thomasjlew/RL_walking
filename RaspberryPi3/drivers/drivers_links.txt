@@ -4,6 +4,11 @@ Raspberry Pi 3B GPIOs
 ---------------------
 https://i.stack.imgur.com/sVvsB.jpg
 
+Arduino Pro mini
+----------------
+arduino ide board selection: Arduino Duemilanove, ATmega328
+starting code for IMU data extraction: http://playground.arduino.cc/Main/MPU-6050#short
+
 Raspberry Pi & ROS
 ------------------
 http://wiki.ros.org/ROSberryPi/Installing%20ROS%20Indigo%20on%20Raspberry%20Pi
