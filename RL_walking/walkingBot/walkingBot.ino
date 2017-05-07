@@ -2,12 +2,12 @@
 // By Arduino User JohnChi
 // August 17, 2014
 // Public Domain
-#include<Wire.h>
+#include <Wire.h>
 #include <Servo.h>
 
 #define SERIAL_BAUD_RATE 115200
 #define SERIAL_TIMEOUT_TIME 5
-#define SERIAL_IN_OUT_DELAY 5
+#define SERIAL_IN_OUT_DELAY 7
 
 const int MPU_addr=0x68;  // I2C address of the MPU-6050
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
@@ -15,8 +15,7 @@ int16_t offset_gx, offset_gy, offset_gz;
 double ax, ay, az;
 double gx, gy, gz;
 int counter = 0;
-
-
+unsigned long time;
 
 Servo s1;
 Servo s2;
@@ -25,11 +24,11 @@ Servo s4;
 int angle1 = 90;
 int angle2 = 80;
 int angle3 = 90;
-int angle4 = 90;
+int angle4 = 80;
 
 void setup(){
   //  Initialize servomotors
-  s1.attach(3); //  angle == 75 is the middle (vertical) but not accessible
+  s1.attach(3);
   s2.attach(5);
   s3.attach(6);
   s4.attach(9);
@@ -78,6 +77,7 @@ void setup(){
 void loop(){
   counter++;
   
+  //  Read IMU data
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
   Wire.endTransmission(false);
@@ -89,13 +89,6 @@ void loop(){
   GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
   GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
   GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-  /*Serial.print("AcX = "); Serial.print(AcX);
-  Serial.print(" | AcY = "); Serial.print(AcY);
-  Serial.print(" | AcZ = "); Serial.print(AcZ);
-  Serial.print(" | Tmp = "); Serial.print(Tmp/340.00+36.53);  //equation for temperature in degrees C from datasheet
-  Serial.print(" | GyX = "); Serial.print(GyX);
-  Serial.print(" | GyY = "); Serial.print(GyY);
-  Serial.print(" | GyZ = "); Serial.println(GyZ);*/
 
   //  Convert raw data into appropriate values
   ax = double(AcX)/16384;
@@ -104,12 +97,12 @@ void loop(){
   gx = double(GyX-offset_gx)/131;
   gy = double(GyY-offset_gy)/131;
   gz = double(GyZ-offset_gz)/131;
-  /*Serial.print("ax = "); Serial.print(ax);
-  Serial.print(" | ay = "); Serial.print(ay);
-  Serial.print(" | az = "); Serial.print(az);
-  Serial.print(" | gx = "); Serial.print(gx);
-  Serial.print(" | gy = "); Serial.print(gy);
-  Serial.print(" | gz = "); Serial.println(gz);*/
+  
+  /*  Send Data to serial port. Format:
+        counter ax ay az gx gy gz time RockNRoll!\n
+      example:
+        6162 -0.84 0.18 -0.53 0.27 -0.02 -0.35 105554 RockNRoll!
+  */
   Serial.print(counter); Serial.print(" "); 
   Serial.print(ax); Serial.print(" "); 
   Serial.print(ay); Serial.print(" "); 
@@ -117,46 +110,9 @@ void loop(){
   Serial.print(gx); Serial.print(" "); 
   Serial.print(gy); Serial.print(" "); 
   Serial.print(gz); Serial.print(" "); 
+  time = millis();
+  Serial.print(time); Serial.print(" ");
   Serial.print("RockNRoll!"); Serial.print("\n");
-
-  //  test servomotor n°1 & 2 1:
-  /*Serial.println("90");
-  s1.write(90);
-  delay(1000);
-  Serial.println("100");
-  s1.write(100);
-  Serial.println("105");
-  s1.write(105);
-  
-  /*Serial.println("60");
-  s2.write(60);
-  delay(1000);
-  Serial.println("80");
-  s2.write(80);
-  delay(1000);
-  Serial.println("100");
-  s2.write(100);
-  delay(1000);*/
-  
-  //  test servomotor n°3 & 4 3: 90+++
-  /*Serial.println("70");
-  s3.write(90);
-  Serial.println("90");
-  s3.write(90);
-  delay(1000);
-  Serial.println("130");
-  s3.write(110);
-  delay(1000);
-  
-  /*Serial.println("60");
-  s4.write(60);
-  delay(1000);
-  Serial.println("90");
-  s4.write(90);
-  delay(1000);
-  Serial.println("100");
-  s4.write(110);
-  delay(1000);*/
   
   //  Read Angles commands
   delay(SERIAL_IN_OUT_DELAY);
@@ -172,8 +128,15 @@ void loop(){
     Serial.print(angle2); Serial.print(" "); 
     Serial.print(angle3); Serial.print(" "); 
     Serial.print(angle4); Serial.println(" "); 
-    break;
     
+    //  Set angles to commands
+    //  ! WARNING! Commands need to be well designed, no security is included here
+    s1.write(angle1);
+    s2.write(angle2);
+    s3.write(angle3);
+    s4.write(angle4);
+    
+    break;
   }
   
 }
