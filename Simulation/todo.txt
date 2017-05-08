@@ -1,1 +1,7 @@
-asdf
+TODO:
+
+- track changes in changes of environment:
+    environment created: WalkBot-v0
+    and added by following: https://github.com/openai/gym/wiki/Environments
+    
+    
