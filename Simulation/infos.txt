@@ -1,0 +1,95 @@
+Code organization:
+CART-POLE (to be put in gym/examples)
+q_learning_cart: runs Q-learning to solve the Cart-Pole problen
+test.py: does nothing, old q-learning template
+template_q_learning: old template which could be useful (not used)
+
+WALKING-ROBOT
+- agents and implementations (to be put in gym/examples)
+biped_solved: OpenAI Gym walking robot simulation solved with ES alg.
+model-pedal1.p: Saved model of the trained ES alg. learning agent 
+model-pedal_COPY.p: Copy of the model to avoid erasing when training
+sim_biBot: simulation of trained agent on modified env. before testing
+- environments (to be put in gym/gym/envs/box2d)
+bipedal_walker: slightly modified bipedal_walker to remove many variables
+walkbot: modified bipedal_walker to simulate real-world robot
+- real-world implementation on a robot (to be used wherever)
+model-pedal1.p: Saved an copied model of the trained ES alg.
+rl_walking.py: old implementation
+test_angles.py: Newest implementation of the ES alg. to control a walking
+				robot. To be used after having trained the model and saved
+				model-pdeal1.p in the same folder. All information in the 
+				report refer to this file.
+
+
+cartpole:
+
+# Number of discrete states (bucket) per state dimension
+#	note that for x and x', only one value is possible (0)
+#	Hence, the curent speed and position of cart pole is unused
+#	for theta, 6 possibilities of angles are allowed
+NUM_BUCKETS = (1, 1, 6, 3)  # (x, x', theta, theta')
+
+
+	#	How to choose learning rate:
+	#	http://www.jmlr.org/papers/volume5/evendar03a/evendar03a.pdf 
+	#	http://stackoverflow.com/questions/33011825/learning-rate-of-a-q-learning-agent
+
+in the end, we chose a different simpler approach
+which we tested empirically
+
+
+NOTE: We wrote a Q-learning code for the walking part
+	but we deleted it because it wasn't working and wasnt a good idea
+
+--------------------
+to run the code
+thomas@thomas-X550LD:~/gym/examples/thomas_code$ ./sim_biBot.py 
+
+--------------
+ANGLES DEFINITIONS:
+http://www.iforce2d.net/b2dtut/joints-revolute
+
+TODO:
+
+- understand fully the algorithm 
+	deep RL:
+	http://karpathy.github.io/2016/05/31/rl/
+
+- track changes in changes of environment:
+    environment created: WalkBot-v0
+    and added by following: https://github.com/openai/gym/wiki/Environments
+
+help for installing box2d (and swig): https://github.com/openai/gym/issues/100
+
+
+note: (to be written in report)
+
+first tested using the pole_catrt with q-learning
+
+when it worked, attacked bipedal_walker
+then, tried q-learning on bidedal_walker
+	we think the state is way too large
+
+implemented another algorithm (see biped_solved)
+	note: cPickle is used to save a trained model to reuse
+			to reuse, only one variable needs to be changed ! :D
+
+-------- status: here! -----
+
+created a new environment to simluate real world robot
+	changed the physical settings to those of the real-world robot
+	adapted the state to show that there are less variables
+
+trained the new agent (adapted from biped_solved) on this new environment
+
+...
+
+
+filter for gyro and accelero:
+
+alpha = 0.6
+new_val = (1-alpha)*last_val + alpha*new_val
+
+
+TODO: Write about how the speed of the motors arduino was approximated
