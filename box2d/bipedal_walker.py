@@ -8,6 +8,10 @@ import gym
 from gym import spaces
 from gym.utils import colorize, seeding
 
+""" NOTE: This is a slightly modified bipedal_walker.py
+    We removed some state variables such as lidar measurements to train the agent
+    on an environment which would be almost identical to the real robot """
+
 # This is simple 4-joints walker robot environment.
 #
 # There are two versions:

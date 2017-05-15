@@ -8,9 +8,10 @@ import gym
 from gym import spaces
 from gym.utils import colorize, seeding
 
-#   Modified bipedal_walker.py
-#   How to add a new environment: https://github.com/openai/gym/wiki/Environments
+""" NOTE: Please put this file in gym/gym/envs/box2d folder
 
+    Modified bipedal_walker.py simulation environment
+    How to add a new environment: https://github.com/openai/gym/wiki/Environments """
 
 # This is simple 4-joints walker robot environment.
 #
