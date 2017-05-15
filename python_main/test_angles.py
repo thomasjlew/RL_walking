@@ -3,9 +3,9 @@
 from time import sleep
 import serial
 
-#BAUD_RATE = 9600
+BAUD_RATE = 9600
 #BAUD_RATE = 57600    #doesnt work
-BAUD_RATE = 19200
+#BAUD_RATE = 19200
 #BAUD_RATE = 115200   #tries to self-destroy :(
 
 #ser = serial.Serial('/dev/tty.usbmodem1d11', BAUD_RATE)
@@ -40,7 +40,7 @@ MIN_ANGLE1 = 90
 MIN_ANGLE2 = 80
 MIN_ANGLE3 = 90
 MIN_ANGLE4 = 80
-MAX_ANGLE1 = 115
+MAX_ANGLE1 = 110
 MAX_ANGLE2 = 140
 MAX_ANGLE3 = 130
 MAX_ANGLE4 = 140
@@ -351,12 +351,6 @@ def measure_motor_speed(s1, s2, s3, s4):
 """ ---------------------------------------------
 	MACHINE LEARNING LEARNT MODEL FROM SIMULATION
 	---------------------------------------------  """
-""" ---------------------------------------------
-	MACHINE LEARNING LEARNT MODEL FROM SIMULATION
-	---------------------------------------------  """
-""" ---------------------------------------------
-	MACHINE LEARNING LEARNT MODEL FROM SIMULATION
-	---------------------------------------------  """
 import gym
 import numpy as np
 import cPickle as pickle
@@ -395,9 +389,6 @@ def get_action(state, model):
     action = np.tanh(action)
     return action
  
-""" ---------------------------------------------
-	MACHINE LEARNING LEARNT MODEL FROM SIMULATION
-	---------------------------------------------  """
 """ ---------------------------------------------
 	MACHINE LEARNING LEARNT MODEL FROM SIMULATION
 	---------------------------------------------  """
@@ -452,14 +443,14 @@ def comp3211_project():
 		robot.update_current_speeds(delta_t_ms, raw_ay, raw_az, raw_gx)
 		robot.update_angle()
 
-		print_raw_IMU()
+		#print_raw_IMU()
 		print_servos_data(s1, s2, s3, s4)
-		print_robot_state(robot)
+		#print_robot_state(robot)
 
 
 
 		#	---------------------
-		"""	INTELLIGENT AGENT """
+		"""	INTELLIGENT AGENT DECISION MAKING AND CONTROL """
 		#	------------------------------------------
 		#	Available data for this step:
 		#		...
@@ -471,29 +462,31 @@ def comp3211_project():
 
 		#measure_motor_speed(s1, s2, s3, s4)#test to measure the speed of servos
 
-		#	------------------------------------------
-		#	------------------------------------------
-		#	--------intelligent agent!----------------
-		#	------------------------------------------
-		#	------------------------------------------
-		#	------------------------------------------
+		#	Convert to the same angles as used in the simulation
+		#	Note: arduino/built.robot angles are in degrees and defined as 0 if horizontal
+		angle1 = (s1.get_current_angle()-90) / (180/3.14)
+		angle2 = (s2.get_current_angle()-90) / (180/3.14)
+		angle3 = (s3.get_current_angle()-90) / (180/3.14)
+		angle4 = (s4.get_current_angle()-90) / (180/3.14)
+
+		#	Form the state as used by the ES algorithm
 		state = [
             robot.get_angle(),        # Normal angles up to 0.5 here, but sure more is possible.
             robot.get_omega_x(), #2.0*self.hull.angularVelocity/FPS,
             #robot.get_v_z(), #0.3*vel.x*(VIEWPORT_W/SCALE)/FPS,  # Normalized to get -1..1 range
-            0.34,
+            0.34, 	# We simulate a constant speed
             robot.get_v_y(), #0.3*vel.y*(VIEWPORT_H/SCALE)/FPS,
-            s1.get_current_angle(), #self.joints[0].angle,   # This will give 1.1 on high up, but it's still OK (and there should be spikes on hiting the ground, that's normal too)
+            angle1, #self.joints[0].angle,   # This will give 1.1 on high up, but it's still OK (and there should be spikes on hiting the ground, that's normal too)
             s1.get_current_direction(), #np.sign(self.joints[0].speed / SPEED_HIP),#
             #self.joints[0].speed / SPEED_HIP,
-            s2.get_current_angle(), #self.joints[1].angle + 1.0,
+            angle2, #self.joints[1].angle + 1.0,
             s2.get_current_direction(),
             #self.joints[1].speed / SPEED_KNEE,
             0, #1.0 if self.legs[1].ground_contact else 0.0,
-            s3.get_current_angle(), #self.joints[2].angle,
+            angle3, #self.joints[2].angle,
             s3.get_current_direction(),#
             #self.joints[2].speed / SPEED_HIP,
-            s4.get_current_angle(), #self.joints[3].angle + 1.0,
+            angle4, #self.joints[3].angle + 1.0,
             s4.get_current_direction(),#
             #self.joints[3].speed / SPEED_KNEE,
             0 #1.0 if self.legs[3].ground_contact else 0.0,
@@ -501,6 +494,7 @@ def comp3211_project():
         # add fake lidar measurements (all zero)
 		state += [0 for i in range(10)]#l.fraction for l in self.lidar]
 
+		#	Compute next step as given by the pre-trained ES algorithm.
 		action = get_action(state, model)
 		done = False
 		if done:
@@ -508,24 +502,23 @@ def comp3211_project():
 
 		#print "total_reward" + str(total_reward)
 
+		#	Reconvert the new angles in arduino/built-robot coordinate system
+		#	We convert the (torque) action of the robot into a new goal angle
+		#	These values were tested empirically since the simulation has no units.
 		angle1 = -action[0]/10 * 180/3.14 + s1.get_current_angle()
 		angle2 = -action[1]/10 * 180/3.14 + s2.get_current_angle()
 		angle3 = -action[2]/10 * 180/3.14 + s3.get_current_angle()
 		angle4 = -action[3]/10 * 180/3.14 + s4.get_current_angle()
-		print "New goal angles computed by intelligent thing :D"
-		print str(angle1) + ", " + str(angle2) + ", " + str(angle3) + ", " + str(angle4)
-		s1.set_goal_angle(angle1) #!!!!!! SELF DESTRUCTION AVOIDANCE DOESNT WORK
-		s2.set_goal_angle(angle2) # !!!!!! ADD ANGLE OFFSET
+		
+		s1.set_goal_angle(angle1) #!!! SELF DESTRUCTION AVOIDANCE CHECK
+		s2.set_goal_angle(angle2) #!!! ADD ANGLE OFFSET
 		s3.set_goal_angle(angle3)
 		s4.set_goal_angle(angle4)
+		"""s1.set_goal_angle(0)
+		s2.set_goal_angle(0)
+		s3.set_goal_angle(0)
+		s4.set_goal_angle(0)"""
 
-		#	-------------------------------------
-		#	Send motor angles commands to Arduino
-		#ser_arduino.write(str(chr(counter))) # Convert the decimal number to ASCII then send it to the Arduino
-		#s1.set_goal_angle(10)
-		#s2.set_goal_angle(10)
-		#s3.set_goal_angle(10)
-		#s4.set_goal_angle(10)
 		print "----------------------------------------"
 		print "Sending motor angles commands to Arduino"
 		ser_arduino.write(	str(s1.get_goal_angle()) + " " + \
@@ -533,13 +526,11 @@ def comp3211_project():
 							str(s3.get_goal_angle()) + " " + \
 							str(s4.get_goal_angle())  )
 
-
 		####################
-		####################
-		####################
-		angle0 = round(state[4],4) #front leg, up
-		angle1 = round(state[6],4)-1 #for some reason, the state is increased
-		angle2 = round(state[9],4)   # by one for lower part of legs angles
+		# 	Print all results
+		angle0 = round(state[4],4) 		#front leg, upper part
+		angle1 = round(state[6],4)-1 	#the state is increased by 1 for lower part of legs
+		angle2 = round(state[9],4)
 		angle3 = round(state[11],4)-1
 		hull_angle = round(state[0],4)
 		hull_omega = round(state[1],4)
@@ -556,8 +547,6 @@ def comp3211_project():
 									   + str(hull_v_x) + "," + str(hull_v_y) + ")"
 		print "speed: " + str(speed_servo_0)
 		print "np.sign speed: " + str(np.sign(speed_servo_0))
-		####################
-		####################
 		####################
 
 		#	Read acknowledgement data sent back from arduino (ignore it)
